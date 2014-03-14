@@ -151,27 +151,26 @@ public class PhoneNumberServiceImpl implements PhoneNumberService {
         }
 
         private IReverseLookupApi getLocalReverseApi(String phoneNumber) {
-            // TODO: Is there a better way to do that?
-            // WARN: Most specific first
-
-            if (phoneNumber.startsWith("+")) {
-                phoneNumber = phoneNumber.replaceAll("\\+", "00");
-            }
+            Phonenumber pn = PhoneNumberUtil.getInstance().parse(phoneNumber, mCountryIso);
             
-            if (phoneNumber.startsWith("0030")) {
+            if (pn.getCountryCode() == 30) {
                 // return new clients.SearchGrApi();
-            } else if (phoneNumber.startsWith("0031")) {
+            } else if (pn.getCountryCode() == 31) {
                 // return new clients.SearchNlApi();
-            } else if (phoneNumber.startsWith("0032")) {
+            } else if (pn.getCountryCode() == 32) {
                 // return new clients.SearchBeApi();
-            } else if (phoneNumber.startsWith("0033")) {
+            } else if (pn.getCountryCode() == 33) {
                 return new SearchFrApi();
-            } else if (phoneNumber.startsWith("0041")) {
+            } else if (pn.getCountryCode() == 41) {
                 return new SearchChApi();
-            } else if (phoneNumber.startsWith("0049")) {
+            } else if (pn.getCountryCode() == 49) {
                 // return new clients.SearchDeApi();
-            } else if (phoneNumber.startsWith("001")) {
-                return new SearchUsApi();
+            } else if (pn.getCountryCode() == 1) {
+                if (NorthAmericaPhoneUtil.isCanadianPhoneNumber(pn)) {
+                    return new SearchCanApi();
+                } else {
+                    return new SearchUsApi();
+                }
             }
 
             return null;
@@ -196,11 +195,9 @@ public class PhoneNumberServiceImpl implements PhoneNumberService {
                 return;
             }
 
-            String normalizedNumber = util.format(phoneNumber,
-                    PhoneNumberFormat.E164);
+            String normalizedNumber = util.format(phoneNumber, PhoneNumberFormat.E164);
             if (DEBUG)
-                Log.d(TAG, "raw number: " + mPhoneNumber + ", formatted e164: "
-                        + normalizedNumber);
+                Log.d(TAG, "raw number: " + mPhoneNumber + ", formatted e164: " + normalizedNumber);
 
             // Lookup cache
             PhoneNumberInfo phoneNumberInfo = null;
@@ -346,5 +343,4 @@ public class PhoneNumberServiceImpl implements PhoneNumberService {
             }
         }
     }
-
 }
